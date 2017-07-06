@@ -1,0 +1,6 @@
+{
+  "email": "370835289615-compute@developer.gserviceaccount.com",
+  "scopes": ["https://www.googleapis.com/auth/drive.readonly"],
+  "keyFile": "../config/your-key-file.pem",
+  "test_url": "https://www.googleapis.com/drive/v2/files"
+}
