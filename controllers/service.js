@@ -19,11 +19,11 @@ let getListFromDrive = new Promise ( (resolve, reject) => {
   let searchDrive = (folderID, mimeType, callback) => {
     // return new Promise(function(_resolve, _reject) {
       let parentString = '';
-      console.log('*******************\nfolderID: '+folderID+'\nmimeType: '+ mimeType);
+      // console.log('*******************\nfolderID: '+folderID+'\nmimeType: '+ mimeType);
       if (folderID != null){
         parentString = "?q='"+folderID+"'+in+parents";
       }
-      console.log(parentString);
+      // console.log(parentString);
       // Options to use when retriving data from google drive
       let driveReq = {
         url: "https://www.googleapis.com/drive/v3/files"+parentString,
@@ -72,11 +72,11 @@ let getListFromDrive = new Promise ( (resolve, reject) => {
 
   searchDrive(rootFolderId, folderMIME,
              (stat, foldersInRoot, folderNamesInRoot) => {
-    console.log('-----------Search drive compleated once!------------');
-    console.log(folderNamesInRoot);
-    console.log(foldersInRoot);
-    console.log(stat);
-    console.log('----------------------------------------------------');
+    // console.log('-----------Search drive compleated once!------------');
+    // console.log(folderNamesInRoot);
+    // console.log(foldersInRoot);
+    // console.log(stat);
+    // console.log('----------------------------------------------------');
     stat.forEach((_stat_) => {
       driveFilesName.push('root/'+_stat_);   // Put all actual files in root folder in driveFilesName
     })
@@ -101,10 +101,10 @@ let getListFromDrive = new Promise ( (resolve, reject) => {
                     findAncestor(folderToparent.get(folderToCheck));
                   }
                 }
-                console.log('*******************************');
-                console.log(fileIDToName.get(folders.peek()));
+                // console.log('*******************************');
+                // console.log(fileIDToName.get(folders.peek()));
                 findAncestor(fileIDToName.get(folders.peek()));
-                console.log(fullPath);
+                // console.log(fullPath);
                 driveFilesName.push(fullPath+'/'+thisStat);});
                 // driveFilesName.push(fileIDToName.get(folders.peek())+'/'+thisStat);});
             }
@@ -117,14 +117,14 @@ let getListFromDrive = new Promise ( (resolve, reject) => {
             }
             // set x to next item
             folders.dequeue();
-            console.log('dequeue!!!');
-            console.log('names'+ driveFilesName);
+            // console.log('dequeue!!!');
+            // console.log('names'+ driveFilesName);
 
             // any more items in array? continue loop
             if(folders.size() != 0) {
                 loopArray(folders);
             } else {
-              console.log(folderToparent.forEach((key,value) => {console.log(key, value);}));
+              // console.log(folderToparent.forEach((key,value) => {console.log(key, value);}));
               resolve(driveFilesName)
             }
         });
@@ -193,14 +193,14 @@ Promise.all([getListFromDrive, getListFromFileSystem]).then(filenames => {
 // });
 
 
-let a = new buckets.BSTree();
-
-a.add('one');
-a.add('two');
-a.add('three');
-a.add('four');
-a.add('one');
-
-console.log('---------BUCKET TEST----------');
-console.log(a.contains('one')); // ==> true
-console.log(a.toArray());
+// let a = new buckets.BSTree();
+//
+// a.add('one');
+// a.add('two');
+// a.add('three');
+// a.add('four');
+// a.add('one');
+//
+// console.log('---------BUCKET TEST----------');
+// console.log(a.contains('one')); // ==> true
+// console.log(a.toArray());
