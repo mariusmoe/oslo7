@@ -2,7 +2,7 @@ const request = require('google-oauth-jwt').requestWithJWT();
 
 const walk    = require('walk');
 const fs      = require('fs');
-var Set = require('jsclass/src/set').Set;
+// var Set = require('jsclass/src/set').Set;
 
 /**
  * Get content from one folderId
@@ -15,7 +15,7 @@ module.exports.getContent = function(folderId, driveReq, mimeType) {
   // TODO Check that params are valid and present
 
     // console.log('*******************\nfolderID: '+folderID+'\nmimeType: '+ mimeType);
-    let parentString = "?q='"+folderID+"'+in+parents";
+    let parentString = "?q='"+folderId+"'+in+parents";
     // console.log(parentString);
     request( driveReq, (err, res, body) => {
       if (err){ console.error(err); }
@@ -44,10 +44,15 @@ module.exports.getContent = function(folderId, driveReq, mimeType) {
     })
 };
 
-
-module.exports.getLocalFiles = function(options) {
+/**
+ * @depricated
+ * get local files
+ * @param  {Object}   options  walker options, folders to ignore etc.
+ * @return {List}              List with all files on disk
+ */
+module.exports.getLocalFiles = (options) => {
   // A set with all files found on the server
-  let serverFiles = new Set([]);
+  let serverFiles = []
   // let serverFiles = new buckets.BSTree();
 
 
@@ -57,11 +62,13 @@ module.exports.getLocalFiles = function(options) {
   walker.on('file', (root, stat, next) => {
       // "root" is the filepathe so far
       // Add this file to the list of files
-      serverFiles.add(root + '/' + stat.name);
+      serverFiles.push(root + '/' + stat.name);
+
       next();
   });
   // Stop walking
   walker.on('end', () => {
-    return(serverFiles);
+    console.log("All done sendeing the walker list!");
+    return serverFiles;
   });
 };

@@ -1,6 +1,7 @@
 const fo = require('./libs/googleDrive');
 const oak = require('./libs/oak-tree');
-var buckets = require('buckets-js');
+const walk    = require('walk');
+const fs      = require('fs');
 
 const rootFolderId = '0Bzd-8gMv1MGANlhiQ2c1RmZkVXM';
 const folderMIME = 'application/vnd.google-apps.folder';
@@ -23,8 +24,6 @@ let driveReq = {
   }
 }
 
-
-
 // Walker options
 const walkerOptions = {
     followLinks: false   // We do not want this
@@ -32,11 +31,12 @@ const walkerOptions = {
   , filters: ["Temp", "_Temp", "node_modules", "arboreal"]
 };
 
+// Create list of files on googleDrive
 
+let _driveFiles, folderIDAtPath = fo.getContent(rootFolderId, driveReq, folderMIME)
 
-
-
-let fileIDToName = new buckets.Dictionary()
+console.log(_driveFiles);
+console.log(folderIDAtPath);
 
 
 let tree = new oak.Tree('CEO');
@@ -56,3 +56,44 @@ tree.leafNodeNames(function(node) {
   console.log(node);
   console.log('\n');
 });
+
+console.log('+++++++++++++++++++++++++');
+
+// Walk the file structure to see wiche files is already stored localy
+let getListFromFileSystem = new Promise ((resolve,reject) => {
+  // A set with all files found on the server
+  let serverFiles = []
+  // let serverFiles = new buckets.BSTree();
+
+  // Walker options
+  options = {
+    followLinks: false   // We do not want this
+    // directories with these keys will be skipped
+  , filters: ["Temp", "_Temp", "node_modules", "arboreal"]
+  };
+  // Defines walker - Defines where to start walking from
+  let walker  = walk.walk('../', options);
+  // Start walking
+  walker.on('file', (root, stat, next) => {
+      // "root" is the filepathe so far
+      // Add this file to the list of files
+      serverFiles.push(root + '/' + stat.name);
+      next();
+  });
+  // Stop walking
+  walker.on('end', () => {resolve(serverFiles);} );
+})
+
+// Wait until google request and local file check is compleate
+Promise.all([getListFromFileSystem]).then(filenames => {
+  let serverFiles  = filenames[0]
+  console.log('-----------------');
+  console.log(serverFiles);
+
+  // Download missing files
+
+
+}).catch(function (reason) {
+     console.log("Promise Rejected");
+     console.log(reason);
+});;
