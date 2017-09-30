@@ -2,12 +2,14 @@ const fo = require('./libs/googleDrive');
 const oak = require('./libs/oak-tree');
 const walk    = require('walk');
 const fs      = require('fs');
+const path      = require('path');
 
-const rootFolderId = '0Bzd-8gMv1MGANlhiQ2c1RmZkVXM';
-const folderMIME = 'application/vnd.google-apps.folder';
+const rootFolderId  = '0Bzd-8gMv1MGANlhiQ2c1RmZkVXM';
+const folderMIME    = 'application/vnd.google-apps.folder';
+const secretKeyPem      = path.normalize('../scripts/config/your-key-file.pem');
 
 let folderId = 465789
-let parentString = "?q='"+folderId+"'+in+parents";
+let parentString = "?q='"+rootFolderId+"'+in+parents";
 // Options to use when retriving data from google drive
 let driveReq = {
   url: "https://www.googleapis.com/drive/v3/files"+parentString,
@@ -18,7 +20,7 @@ let driveReq = {
     // email: '370835289615-compute@developer.gserviceaccount.com',
     email: 'melodic-voice-110507@appspot.gserviceaccount.com',
     // use the PEM file we generated from the downloaded key
-    keyFile: '../config/your-key-file.pem',
+    keyFile: secretKeyPem,
     // specify the scopes you wish to access - each application has different scopes
     scopes: ['https://www.googleapis.com/auth/drive.readonly']
   }
@@ -33,10 +35,10 @@ const walkerOptions = {
 
 // Create list of files on googleDrive
 
-let _driveFiles, folderIDAtPath = fo.getContent(rootFolderId, driveReq, folderMIME)
-
-console.log(_driveFiles);
-console.log(folderIDAtPath);
+fo.getContent(rootFolderId, driveReq, folderMIME).then((driveReqResult) => {
+  console.log(driveReqResult);
+  console.log('***************************************************');
+})
 
 
 let tree = new oak.Tree('CEO');

@@ -12,10 +12,17 @@ const fs      = require('fs');
  * @return {Obj}          files in current folder, folders in current folders
  */
 module.exports.getContent = function(folderId, driveReq, mimeType) {
+
+  return new Promise((resolve, reject) => {
+
+
+
+
   // TODO Check that params are valid and present
 
     // console.log('*******************\nfolderID: '+folderID+'\nmimeType: '+ mimeType);
     let parentString = "?q='"+folderId+"'+in+parents";
+    driveReq.url = "https://www.googleapis.com/drive/v3/files"+parentString
     // console.log(parentString);
     request( driveReq, (err, res, body) => {
       if (err){ console.error(err); }
@@ -23,10 +30,10 @@ module.exports.getContent = function(folderId, driveReq, mimeType) {
       let folderIDAtPath = [],
           folderNameAtPath = [],
           _driveFiles =[];
-      // console.log(body);
 
       // Parse response
       const parsedBody = JSON.parse(body);
+      // console.log(parsedBody);
 
       parsedBody.files.forEach((file) => {
         // Interesting mime types: image/jpeg, application/vnd.google-apps.folder
@@ -35,13 +42,17 @@ module.exports.getContent = function(folderId, driveReq, mimeType) {
           folderNameAtPath.push(file.name);
         }
         // If the file is anyting but a folder, add it to drive files
-        if (file.mimeType != folderMIME){
+        if (file.mimeType != mimeType){
           _driveFiles.push(file.name);
         }
-
       });
-      return [_driveFiles, folderIDAtPath];
+
+      // return [_driveFiles, folderIDAtPath];
+      resolve([_driveFiles, folderIDAtPath])
     })
+
+
+  })
 };
 
 /**
