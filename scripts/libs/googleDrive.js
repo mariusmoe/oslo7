@@ -3,7 +3,7 @@ const request = require('google-oauth-jwt').requestWithJWT();
 const walk    = require('walk');
 const fs      = require('fs');
 // var Set = require('jsclass/src/set').Set;
-
+const mimeType = 'application/vnd.google-apps.folder';
 /**
  * Get content from one folderId
  * @param  {string} folderId ID of folder to Check
@@ -11,7 +11,7 @@ const fs      = require('fs');
  * @param  {string} mimeType what kind of file to look forEach
  * @return {Obj}          files in current folder, folders in current folders
  */
-module.exports.getContent = function(folderId, driveReq, mimeType) {
+module.exports.getContent = function(folderId, driveReq) {
 
   return new Promise((resolve, reject) => {
 
@@ -35,20 +35,22 @@ module.exports.getContent = function(folderId, driveReq, mimeType) {
       const parsedBody = JSON.parse(body);
       // console.log(parsedBody);
 
-      parsedBody.files.forEach((file) => {
-        // Interesting mime types: image/jpeg, application/vnd.google-apps.folder
-        if (file.mimeType === mimeType){
-          folderIDAtPath.push(file.id);
-          folderNameAtPath.push(file.name);
-        }
-        // If the file is anyting but a folder, add it to drive files
-        if (file.mimeType != mimeType){
-          _driveFiles.push(file.name);
-        }
-      });
+      if (parsedBody.files) {
+        parsedBody.files.forEach((file) => {
+          // Interesting mime types: image/jpeg, application/vnd.google-apps.folder
+          if (file.mimeType === mimeType){
+            folderIDAtPath.push(file.id);
+            folderNameAtPath.push(file.name);
+          }
+          // If the file is anyting but a folder, add it to drive files
+          if (file.mimeType != mimeType){
+            _driveFiles.push(file.name);
+          }
+        });
+      }
 
       // return [_driveFiles, folderIDAtPath];
-      resolve([_driveFiles, folderIDAtPath])
+      resolve([_driveFiles, folderIDAtPath, folderNameAtPath])
     })
 
 
