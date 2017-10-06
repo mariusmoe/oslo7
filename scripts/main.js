@@ -28,8 +28,8 @@ let driveReq = {
 // Walker options
 const walkerOptions = {
     followLinks: false   // We do not want this
-    // directories with these keys will be skipped
-  , filters: ["Temp", "_Temp", "node_modules", "arboreal"]
+    // directories with these keys will be skipped (obviously not in windows)
+  , filters: ["Temp", "_Temp", "node_modules", "arboreal", ".git"]
 };
 
 let fullPathList  = [];
@@ -42,16 +42,11 @@ const _peekFolder = ((folderId, driveReq, level) => {
         let driveFiles   =  driveReqResult[0],
         folderIDAtPath    =  driveReqResult[1],
         folderNameAtPath  =  driveReqResult[2];
-        console.log('***************************************************');
-        console.log(driveFiles);
-        console.log(folderIDAtPath);
-        console.log(folderNameAtPath);
 
         // Add file to fullpath with its full path
         driveFiles.forEach((_file, i) => {
           fullPathList.push(level + '/' +_file);
         })
-
         folderIDAtPath.forEach((_folderId, i) => {
           peekFolder(_folderId, driveReq, level + '/' + folderNameAtPath[i])
         })
@@ -59,36 +54,11 @@ const _peekFolder = ((folderId, driveReq, level) => {
         if (folderIDAtPath.length === 0) {
           resolve(fullPathList);
         }
-
       })
     })
     peekFolder(rootFolderId, driveReq, level);
   })
 })
-_peekFolder(rootFolderId, driveReq, 'root').then((_fullPathList) => {
-  console.log('+++++++++++++++++++++++++');
-  console.log('+++++++++++++++++++++++++');
-  console.log(_fullPathList);
-  console.log('+++++++++++++++++++++++++');
-  console.log('+++++++++++++++++++++++++');
-});
-let tree = new oak.Tree('CEO');
-
-// tree.add('VP of Happiness', 'CEO', tree.traverseDF);
-// tree.add('VP of Finance', 'CEO', tree.traverseDF);
-// tree.add('VP of Sadness', 'CEO', tree.traverseDF);
-//
-// tree.add('Director of Puppies', 'VP of Finance', tree.traverseDF);
-// tree.add('Manager of Puppies', 'VP of Finance', tree.traverseDF);
-//
-// tree.traverseDF(function(node) {
-//     console.log(node.data)
-// });
-// console.log('+++++++++++++++++++++++++');
-// tree.leafNodeNames(function(node) {
-//   console.log(node);
-//   console.log('\n');
-// });
 
 console.log('+++++++++++++++++++++++++');
 
@@ -118,17 +88,48 @@ let getListFromFileSystem = new Promise ((resolve,reject) => {
 })
 
 // Wait until google request and local file check is compleate
-/*
-Promise.all([getListFromFileSystem]).then(filenames => {
-  let serverFiles  = filenames[0]
-  console.log('-----------------');
-  console.log(serverFiles);
+// Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, 'root')]).then(filenames => {
+//   let serverFiles  = filenames[0]
+//   let googleFiles  = filenames[1]
+//   console.log('-----------------');
+//   console.log(serverFiles);
+//   console.log('-----------------');
+//   console.log(googleFiles);
+//
+//   // Download missing files
+//
+// }).catch(function (reason) {
+//      console.log("Promise Rejected");
+//      console.log(reason);
+// });;
 
-  // Download missing files
+
+// var http = require('http');
 
 
-}).catch(function (reason) {
-     console.log("Promise Rejected");
-     console.log(reason);
-});;
-*/
+var file = fs.createWriteStream("file.txt");
+// var request = http.get("http://i3.ytimg.com/vi/J---aiyznGQ/mqdefault.jpg", function(response) {
+//   response.pipe(file);
+// });
+const request = require('google-oauth-jwt').requestWithJWT();
+var f=fs.createWriteStream('name.jpeg');
+let testImage = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
+driveReq.url = "https://www.googleapis.com/drive/v3/files/" + testImage + "?alt=media"
+  // request.get( driveReq, (err, res, body) => {
+  //   console.log(res);
+  //   console.log('-----------------------------------------------------');
+  //   console.log(body);
+  //   console.log(res.statusCode) // 200
+  //   console.log(res.headers['content-type'])
+  //   console.log(res.headers.size);
+  //   res.pipe(file);
+  //   console.log('Done!');
+  //   fs.writeFile('myfile.jpg', res.body, function (err) {
+  //    // Handle err somehow
+  //    // Do other work necessary to finish the request
+  //  })
+  // })
+
+  request.get(driveReq, function (err, res, body) {
+
+  });
