@@ -11,6 +11,7 @@ let folderId = 465789
 let parentString = "?q='"+rootFolderId+"'+in+parents";
 // Options to use when retriving data from google drive
 let driveReq = {
+  encoding: null,
   url: "",
   //q: 'parents in "0Bzd-8gMv1MGAbnhmODE0aVFyUWs"',
   jwt: {
@@ -107,29 +108,35 @@ let getListFromFileSystem = new Promise ((resolve,reject) => {
 // var http = require('http');
 
 
-var file = fs.createWriteStream("file.txt");
 // var request = http.get("http://i3.ytimg.com/vi/J---aiyznGQ/mqdefault.jpg", function(response) {
 //   response.pipe(file);
 // });
 const request = require('google-oauth-jwt').requestWithJWT();
-var f=fs.createWriteStream('name.jpeg');
+
 let testImage = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
 driveReq.url = "https://www.googleapis.com/drive/v3/files/" + testImage + "?alt=media"
-  // request.get( driveReq, (err, res, body) => {
-  //   console.log(res);
-  //   console.log('-----------------------------------------------------');
-  //   console.log(body);
-  //   console.log(res.statusCode) // 200
-  //   console.log(res.headers['content-type'])
-  //   console.log(res.headers.size);
-  //   res.pipe(file);
-  //   console.log('Done!');
-  //   fs.writeFile('myfile.jpg', res.body, function (err) {
-  //    // Handle err somehow
-  //    // Do other work necessary to finish the request
-  //  })
-  // })
+  request.get( driveReq, (err, res, body) => {
+    console.log(res);
+    console.log('-----------------------------------------------------');
+    console.log(body);
+    if (res.headers['content-type'] == 'image/jpeg') {
+      fs.WriteStream('file.jpg').write(body);
 
-  request.get(driveReq, function (err, res, body) {
+    }
+    // console.log(res.statusCode) // 200
+    console.log(res.headers['content-type'])
+    if (res.headers['content-type'] == 'application/json; charset=UTF-8') {
+      var fileBuffer = new Buffer(res.body, 'binary' );
+       var file2 = fileBuffer.toString('utf8');
+       console.log(file2);
+    }
+    // console.log(res.headers.size);
 
-  });
+    console.log('Done!');
+    // const buffer = Buffer.from(res.body, 'utf8');
+    //     fs.writeFileSync('', buffer);
+  })
+
+  // request.get(driveReq, function (err, res, body) {
+  //
+  // });
