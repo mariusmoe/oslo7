@@ -33,6 +33,11 @@ const walkerOptions = {
   , filters: ["Temp", "_Temp", "node_modules", "arboreal", ".git"]
 };
 
+Array.prototype.difference = function(a) {
+  return this.filter((i) => {return a.indexOf(i) < 0;});
+};
+
+
 let fullPathList  = [];
 let folderQueue   = [];
 // Create list of files on googleDrive
@@ -73,7 +78,7 @@ let getListFromFileSystem = new Promise ((resolve,reject) => {
   options = {
     followLinks: false   // We do not want this
     // directories with these keys will be skipped
-  , filters: ["Temp", "_Temp", "node_modules", "arboreal"]
+  , filters: ["Temp", "_Temp", "node_modules", "arboreal", ".git"]
   };
   // Defines walker - Defines where to start walking from
   let walker  = walk.walk('../', options);
@@ -89,39 +94,51 @@ let getListFromFileSystem = new Promise ((resolve,reject) => {
 })
 
 // Wait until google request and local file check is compleate
-// Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, 'root')]).then(filenames => {
-//   let serverFiles  = filenames[0]
-//   let googleFiles  = filenames[1]
-//   console.log('-----------------');
-//   console.log(serverFiles);
-//   console.log('-----------------');
-//   console.log(googleFiles);
-//
-//   // Download missing files
-//
-// }).catch(function (reason) {
-//      console.log("Promise Rejected");
-//      console.log(reason);
-// });;
+Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, 'root')]).then(filenames => {
+  let serverFiles  = filenames[0]
+  let googleFiles  = filenames[1]
+  serverFiles.forEach((f,i) => {serverFiles[i].replace('\\', '/')})
+  var new_array = serverFiles.map(function(e) {
+  e = e.replace('\\\\', '/');
+    return e;
+  });
+  console.log(new_array);
+  console.log('-----------------');
+
+  console.log(serverFiles[7].replace('\\', '/'));
+  console.log(typeof serverFiles[7]);
+  console.log(serverFiles);
+  console.log('-----------------');
+  console.log(googleFiles);
+  // const dir = './tmp';
+  //
+  // if (!fs.existsSync(dir)){
+  //     fs.mkdirSync(dir);
+  // }
 
 
-// var http = require('http');
+  // Download missing files
+
+}).catch(function (reason) {
+     console.log("Promise Rejected");
+     console.log(reason);
+});;
 
 
-// var request = http.get("http://i3.ytimg.com/vi/J---aiyznGQ/mqdefault.jpg", function(response) {
-//   response.pipe(file);
-// });
+console.log([1,2,3].difference([1,2]));
+console.log([1,2,3].difference([1,2,3,4,5]));
+
+
 const request = require('google-oauth-jwt').requestWithJWT();
 
 let testImage = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
 driveReq.url = "https://www.googleapis.com/drive/v3/files/" + testImage + "?alt=media"
   request.get( driveReq, (err, res, body) => {
-    console.log(res);
+    // console.log(res);
     console.log('-----------------------------------------------------');
-    console.log(body);
+    // console.log(body);
     if (res.headers['content-type'] == 'image/jpeg') {
       fs.WriteStream('file.jpg').write(body);
-
     }
     // console.log(res.statusCode) // 200
     console.log(res.headers['content-type'])
