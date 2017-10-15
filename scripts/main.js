@@ -81,7 +81,7 @@ let getListFromFileSystem = new Promise ((resolve,reject) => {
   , filters: ["Temp", "_Temp", "node_modules", "arboreal", ".git"]
   };
   // Defines walker - Defines where to start walking from
-  let walker  = walk.walk('../', options);
+  let walker  = walk.walk('./media', options);
   // Start walking
   walker.on('file', (root, stat, next) => {
       // "root" is the filepathe so far
@@ -94,22 +94,37 @@ let getListFromFileSystem = new Promise ((resolve,reject) => {
 })
 
 // Wait until google request and local file check is compleate
-Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, 'root')]).then(filenames => {
+Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).then(filenames => {
   let serverFiles  = filenames[0]
   let googleFiles  = filenames[1]
-  serverFiles.forEach((f,i) => {serverFiles[i].replace('\\', '/')})
-  var new_array = serverFiles.map(function(e) {
-  e = e.replace('\\\\', '/');
+  // serverFiles.forEach((f,i) => {f.replace('//', '/')})
+  var new_serverFiles = serverFiles.map(function(e) {
+    // substring from 7 because ./media should be removed
+  e = e.replace('//', '/').substring(7);
     return e;
   });
-  console.log(new_array);
+  console.log(new_serverFiles);
   console.log('-----------------');
-
-  console.log(serverFiles[7].replace('\\', '/'));
-  console.log(typeof serverFiles[7]);
-  console.log(serverFiles);
+  //
+  // console.log(serverFiles);
   console.log('-----------------');
   console.log(googleFiles);
+  console.log('-------------------------------------------------------------');
+
+  console.log('Files on google drive that are not on local server:');
+  console.log(googleFiles.difference(new_serverFiles));
+  console.log('-------------------------------------------------------------');
+  console.log('Files on the server that are not on google drive:');
+  console.log(new_serverFiles.difference(googleFiles));
+  const filesOnDriveNotOnLocalServer = googleFiles.difference(new_serverFiles)
+
+  filesOnDriveNotOnLocalServer.forEach((fileWithPath) => {
+    fileWithPath.split('/');
+    // for fileWithPath of length >= 2
+      // check if path exists if NOT
+      // try to go down each level; IF level does not exist => create levels from that point
+      // download and save the file at that position 
+  })
   // const dir = './tmp';
   //
   // if (!fs.existsSync(dir)){
