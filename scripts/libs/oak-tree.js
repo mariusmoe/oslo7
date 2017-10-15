@@ -30,18 +30,14 @@ Tree.prototype.traverseDF = function(callback) {
 
 };
 
+
+// TODO impove this function
 Tree.prototype.leafNodeNames = function(callback) {
   (function recurse(currentNode) {
-
-
-      // step 4
-      // callback(currentNode);
       if (currentNode.children.length === 0) {
         let parentString =  [];
         (function _recurse(_currentNode) {
-            // step 2
             if (_currentNode.parent) {
-                // step 3
                 parentString.push(_currentNode.data);
                 _recurse(_currentNode.parent);
             } else {
@@ -50,14 +46,12 @@ Tree.prototype.leafNodeNames = function(callback) {
         })(currentNode);
         callback( parentString.reverse())
       }
-      // step 2
       for (var i = 0, length = currentNode.children.length; i < length; i++) {
-          // step 3
           recurse(currentNode.children[i]);
       }
-      // step 1
   })(this._root);
 };
+
 
 Tree.prototype.contains = function(callback, traversal) {
     traversal.call(this, callback);
