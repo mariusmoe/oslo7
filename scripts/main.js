@@ -119,11 +119,14 @@ Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).th
   const filesOnDriveNotOnLocalServer = googleFiles.difference(new_serverFiles)
 
   filesOnDriveNotOnLocalServer.forEach((fileWithPath) => {
-    fileWithPath.split('/');
+//    fileWithPath.split('/');
+    // use https://www.npmjs.com/package/mkdirp
+
     // for fileWithPath of length >= 2
-      // check if path exists if NOT
-      // try to go down each level; IF level does not exist => create levels from that point
-      // download and save the file at that position 
+    // check if path exists if NOT
+    // try to go down each level; IF level does not exist => create levels from that point
+    // download and save the file at that position
+
   })
   // const dir = './tmp';
   //
