@@ -88,6 +88,10 @@ const _peekFolder = ((folderId, driveReq, level) => {
   })
 })
 
+
+// first ask for meta on everything espesially folders, then recursivly search for
+// files and folders until searched folders is the same as how many folders are in the damn drive
+
 console.log('+++++++++++++++++++++++++');
 
 // Walk the file structure to see wiche files is already stored localy
