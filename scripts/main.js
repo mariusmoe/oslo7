@@ -3,6 +3,7 @@ const oak = require('./libs/oak-tree');
 const walk    = require('walk');
 const fs      = require('fs');
 const path      = require('path');
+const mkdirp = require('mkdirp');
 
 const rootFolderId  = '0Bzd-8gMv1MGANlhiQ2c1RmZkVXM';
 const secretKeyPem      = path.normalize('../scripts/config/your-key-file.pem');
@@ -40,10 +41,11 @@ Array.prototype.difference = function(a) {
 
 let fullPathList  = [];
 let folderQueue   = [];
+
 // Create list of files on googleDrive
 const _peekFolder = ((folderId, driveReq, level) => {
   return new Promise ((resolve,reject) => {
-    const peekFolder = ((folderId, driveReq, level) => {
+    const peekFolder = ((folderId, driveReq, level, _folderQueue, first=false) => {
       gDrive.getContent(folderId, driveReq).then((driveReqResult) => {
         let driveFiles   =  driveReqResult[0],
         folderIDAtPath    =  driveReqResult[1],
@@ -52,17 +54,37 @@ const _peekFolder = ((folderId, driveReq, level) => {
         // Add file to fullpath with its full path
         driveFiles.forEach((_file, i) => {
           fullPathList.push(level + '/' +_file);
-        })
-        folderIDAtPath.forEach((_folderId, i) => {
-          peekFolder(_folderId, driveReq, level + '/' + folderNameAtPath[i])
-        })
+        });
 
-        if (folderIDAtPath.length === 0) {
+        folderIDAtPath.forEach((folderName) => {
+          folderQueue.push(folderName);
+        });
+        if (_folderQueue.length > 0) {
+          _folderQueue.pop();
+        }
+        let fQueue = _folderQueue.concat(folderIDAtPath);
+
+
+        folderIDAtPath.forEach((_folderId, i) => {
+          peekFolder(_folderId, driveReq, level + '/' + folderNameAtPath[i], fQueue)
+        });
+
+        console.log('//////////////////////////////////////////////');
+        console.log(folderIDAtPath);
+        console.log('---------------------------------------------');
+        console.log(folderNameAtPath);
+        // console.log();
+        // console.log();
+        // console.log();
+        console.log('*********************************************');
+
+        // Resolves too early
+        if (fQueue.length  === 0 && first === false) {
           resolve(fullPathList);
         }
       })
     })
-    peekFolder(rootFolderId, driveReq, level);
+    peekFolder(rootFolderId, driveReq, level, [], true);
   })
 })
 
@@ -119,7 +141,17 @@ Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).th
   const filesOnDriveNotOnLocalServer = googleFiles.difference(new_serverFiles)
 
   filesOnDriveNotOnLocalServer.forEach((fileWithPath) => {
-//    fileWithPath.split('/');
+    const fileWithPathList = fileWithPath.split('/');
+    if (fileWithPathList.length >= 2) {
+      const createFolders = fileWithPathList.slice(0,-1);
+      //console.log(createFolders);
+      const createFoldersString = './'+createFolders.join('/');
+      mkdirp.sync(createFoldersString, function (err) {
+        if (err) console.error(err)
+        else console.log('pow!')
+      });
+
+    }
     // use https://www.npmjs.com/package/mkdirp
 
     // for fileWithPath of length >= 2
@@ -146,7 +178,7 @@ Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).th
 console.log([1,2,3].difference([1,2]));
 console.log([1,2,3].difference([1,2,3,4,5]));
 
-
+/*
 const request = require('google-oauth-jwt').requestWithJWT();
 
 let testImage = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
@@ -175,3 +207,5 @@ driveReq.url = "https://www.googleapis.com/drive/v3/files/" + testImage + "?alt=
   // request.get(driveReq, function (err, res, body) {
   //
   // });
+
+*/
