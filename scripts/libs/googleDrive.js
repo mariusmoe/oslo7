@@ -57,6 +57,46 @@ module.exports.getContent = function(folderId, driveReq) {
   })
 };
 
+
+
+
+module.exports.getListOfFolders = function(folderId, driveReq) {
+
+  return new Promise((resolve, reject) => {
+
+
+
+
+  // TODO Check that params are valid and present
+
+    // console.log('*******************\nfolderID: '+folderID+'\nmimeType: '+ mimeType);
+    let parentString = "?q="+"mimeType = 'application/vnd.google-apps.folder'";
+    driveReq.url = "https://www.googleapis.com/drive/v3/files"+parentString
+    driveReq.encoding = undefined;
+    // console.log(parentString);
+    request( driveReq, (err, res, body) => {
+      if (err){ console.error(err); }
+
+      let folders = []
+
+      // Parse response
+      const parsedBody = JSON.parse(body);
+      // console.log(parsedBody);
+
+      if (parsedBody.files) {
+        parsedBody.files.forEach((file) => {
+          // Interesting mime types: image/jpeg, application/vnd.google-apps.folder
+          folders.push(file);
+
+        });
+      }
+      resolve(folders);
+    })
+
+
+  })
+};
+
 /**
  * @depricated
  * get local files

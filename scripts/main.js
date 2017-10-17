@@ -41,11 +41,12 @@ Array.prototype.difference = function(a) {
 
 let fullPathList  = [];
 let folderQueue   = [];
+let count = 1;
 
 // Create list of files on googleDrive
 const _peekFolder = ((folderId, driveReq, level) => {
   return new Promise ((resolve,reject) => {
-    const peekFolder = ((folderId, driveReq, level, _folderQueue, first=false) => {
+    const peekFolder = ((folderId, driveReq, level, folders, searchedFolders) => {
       gDrive.getContent(folderId, driveReq).then((driveReqResult) => {
         let driveFiles   =  driveReqResult[0],
         folderIDAtPath    =  driveReqResult[1],
@@ -56,35 +57,34 @@ const _peekFolder = ((folderId, driveReq, level) => {
           fullPathList.push(level + '/' +_file);
         });
 
-        folderIDAtPath.forEach((folderName) => {
-          folderQueue.push(folderName);
-        });
-        if (_folderQueue.length > 0) {
-          _folderQueue.pop();
-        }
-        let fQueue = _folderQueue.concat(folderIDAtPath);
+        // folderIDAtPath.forEach((folderName) => {
+        //   folderQueue.push(folderName);
+        // });
+
+        count += 1;
+        // console.log(count);
 
 
+        // for (var i = 0; i < folderIDAtPath.length; i++) {
+        //   console.log('folders searched: ' + searchedFolders);
+        //   peekFolder(folderIDAtPath[i], driveReq, level + '/' + folderNameAtPath[i], folders, searchedFolders + i)
+        // }
         folderIDAtPath.forEach((_folderId, i) => {
-          peekFolder(_folderId, driveReq, level + '/' + folderNameAtPath[i], fQueue)
+          // console.log();
+
+          peekFolder(_folderId, driveReq, level + '/' + folderNameAtPath[i], folders, searchedFolders + i)
         });
 
-        console.log('//////////////////////////////////////////////');
-        console.log(folderIDAtPath);
-        console.log('---------------------------------------------');
-        console.log(folderNameAtPath);
-        // console.log();
-        // console.log();
-        // console.log();
-        console.log('*********************************************');
 
         // Resolves too early
-        if (fQueue.length  === 0 && first === false) {
+        if (folders.length  == count-1) {
           resolve(fullPathList);
         }
       })
     })
-    peekFolder(rootFolderId, driveReq, level, [], true);
+    gDrive.getListOfFolders(rootFolderId, driveReq).then((folders) => {
+      peekFolder(rootFolderId, driveReq, level, folders, 0);
+    })
   })
 })
 
@@ -92,7 +92,7 @@ const _peekFolder = ((folderId, driveReq, level) => {
 // first ask for meta on everything espesially folders, then recursivly search for
 // files and folders until searched folders is the same as how many folders are in the damn drive
 
-console.log('+++++++++++++++++++++++++');
+
 
 // Walk the file structure to see wiche files is already stored localy
 let getListFromFileSystem = new Promise ((resolve,reject) => {
@@ -129,11 +129,12 @@ Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).th
   e = e.replace('//', '/').substring(7);
     return e;
   });
-  console.log(new_serverFiles);
-  console.log('-----------------');
-  //
-  // console.log(serverFiles);
-  console.log('-----------------');
+  // console.log(new_serverFiles);
+  // console.log('-----------------');
+  // //
+  // // console.log(serverFiles);
+  console.log('-------------------------------------------------------------');
+  console.log('All files on google Drive:');
   console.log(googleFiles);
   console.log('-------------------------------------------------------------');
 
@@ -179,8 +180,6 @@ Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).th
 });;
 
 
-console.log([1,2,3].difference([1,2]));
-console.log([1,2,3].difference([1,2,3,4,5]));
 
 /*
 const request = require('google-oauth-jwt').requestWithJWT();
