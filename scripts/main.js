@@ -57,26 +57,11 @@ const _peekFolder = ((folderId, driveReq, level) => {
           fullPathList.push(level + '/' +_file);
         });
 
-        // folderIDAtPath.forEach((folderName) => {
-        //   folderQueue.push(folderName);
-        // });
-
         count += 1;
-        // console.log(count);
-
-
-        // for (var i = 0; i < folderIDAtPath.length; i++) {
-        //   console.log('folders searched: ' + searchedFolders);
-        //   peekFolder(folderIDAtPath[i], driveReq, level + '/' + folderNameAtPath[i], folders, searchedFolders + i)
-        // }
         folderIDAtPath.forEach((_folderId, i) => {
-          // console.log();
-
-          peekFolder(_folderId, driveReq, level + '/' + folderNameAtPath[i], folders, searchedFolders + i)
+          peekFolder(_folderId, driveReq, level + '/' + folderNameAtPath[i],
+                     folders, searchedFolders + i)
         });
-
-
-        // Resolves too early
         if (folders.length  == count-1) {
           resolve(fullPathList);
         }
@@ -123,16 +108,13 @@ let getListFromFileSystem = new Promise ((resolve,reject) => {
 Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).then(filenames => {
   let serverFiles  = filenames[0]
   let googleFiles  = filenames[1]
-  // serverFiles.forEach((f,i) => {f.replace('//', '/')})
-  var new_serverFiles = serverFiles.map(function(e) {
+
+  let new_serverFiles = serverFiles.map(function(e) {
     // substring from 7 because ./media should be removed
-  e = e.replace('//', '/').substring(7);
+    e = e.replace('//', '/').substring(7);
     return e;
   });
-  // console.log(new_serverFiles);
-  // console.log('-----------------');
-  // //
-  // // console.log(serverFiles);
+
   console.log('-------------------------------------------------------------');
   console.log('All files on google Drive:');
   console.log(googleFiles);
@@ -143,21 +125,51 @@ Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).th
   console.log('-------------------------------------------------------------');
   console.log('Files on the server that are not on google drive:');
   console.log(new_serverFiles.difference(googleFiles));
+
   const filesOnDriveNotOnLocalServer = googleFiles.difference(new_serverFiles)
 
   filesOnDriveNotOnLocalServer.forEach((fileWithPath) => {
+    // TODO prevent this for loop to go too fast, see drive api for quotas
     const fileWithPathList = fileWithPath.split('/');
+    // the slice has not yet happend so this fires too often
+    // TODO fix this!!!
     if (fileWithPathList.length >= 2) {
       const createFolders = fileWithPathList.slice(0,-1);
       //console.log(createFolders);
-      const createFoldersString = './'+createFolders.join('/');
-      mkdirp.sync(createFoldersString, function (err) {
-        if (err) console.error(err)
-        else console.log('pow!')
+      const createFoldersString = './media/'+createFolders.join('/');
+      mkdirp(createFoldersString,'0755', function (err) {
+        if (err) {
+          console.error(err)
+          console.log('ERROR')
+        }
+        console.log('pow!')
+        // Call download file
       });
 
+    } else {
+      // Just save the file in the media folder
+      let tr = null;
     }
     // use https://www.npmjs.com/package/mkdirp
+    //
+    //
+    // SE this
+    // https://developers.google.com/drive/v3/web/performance
+    // curl 'https://www.googleapis.com/drive/v3/files?q='0Bzd-8gMv1MGAWlZ3S3ZPdzVWV2s'%20in%20parents&fields=kind%2CnextPageToken%2CincompleteSearch%2Cfiles%2Fparents%2Cfiles%2Fid' \
+    // -H 'Authorization: Bearer [YOUR_BEARER_TOKEN]' \
+    // -H 'Accept: application/json' \
+    // --compressed
+    //
+    // const rootFolderId
+    // For in retrived list
+    //  if mime is png/jpg
+    //    let fullPathForFile = [name of file with file extension]
+    //    while folder != rootFolderId
+    //      fullPathForFile.concat(parants[0])
+    //      folder = parants[0]
+    //    fullPathList.push(fullPathForFile.reverse().join('/'))
+    //
+    //
 
     // for fileWithPath of length >= 2
     // check if path exists if NOT
@@ -165,50 +177,37 @@ Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).th
     // download and save the file at that position
 
   })
-  // const dir = './tmp';
-  //
-  // if (!fs.existsSync(dir)){
-  //     fs.mkdirSync(dir);
-  // }
-
 
   // Download missing files
 
-}).catch(function (reason) {
+}).catch(function (reason) {ø
      console.log("Promise Rejected");
      console.log(reason);
 });;
 
 
 
-/*
+
 const request = require('google-oauth-jwt').requestWithJWT();
 
-let testImage = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
-driveReq.url = "https://www.googleapis.com/drive/v3/files/" + testImage + "?alt=media"
+const downloadImage = ((imageId, driveReq) => {
+  let imageId = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
+  driveReq.url = "https://www.googleapis.com/drive/v3/files/" + imageId + "?alt=media"
   request.get( driveReq, (err, res, body) => {
-    // console.log(res);
     console.log('-----------------------------------------------------');
-    // console.log(body);
     if (res.headers['content-type'] == 'image/jpeg') {
-      fs.WriteStream('file.jpg').write(body);
+      const streamImage = fs.WriteStream('file.jpg');
+      streamImage.write(body);
+      streamImage.end(() => {console.log('The stream is over and data has been saved');})
     }
-    // console.log(res.statusCode) // 200
-    console.log(res.headers['content-type'])
     if (res.headers['content-type'] == 'application/json; charset=UTF-8') {
-      var fileBuffer = new Buffer(res.body, 'binary' );
-       var file2 = fileBuffer.toString('utf8');
-       console.log(file2);
+      console.log(res.headers['content-type'])
+      const fileBuffer = new Buffer(res.body, 'binary' );
+      const file2 = fileBuffer.toString('utf8');
+      console.log(file2);
     }
-    // console.log(res.headers.size);
-
-    console.log('Done!');
-    // const buffer = Buffer.from(res.body, 'utf8');
-    //     fs.writeFileSync('', buffer);
   })
-
+})
   // request.get(driveReq, function (err, res, body) {
   //
   // });
-
-*/

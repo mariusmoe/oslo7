@@ -23,6 +23,7 @@ module.exports.getContent = function(folderId, driveReq) {
     // console.log('*******************\nfolderID: '+folderID+'\nmimeType: '+ mimeType);
     let parentString = "?q='"+folderId+"'+in+parents";
     driveReq.url = "https://www.googleapis.com/drive/v3/files"+parentString
+    driveReq.encoding = undefined;
     // console.log(parentString);
     request( driveReq, (err, res, body) => {
       if (err){ console.error(err); }
@@ -59,13 +60,15 @@ module.exports.getContent = function(folderId, driveReq) {
 
 
 
-
+/**
+ * Get a list of all folders nested in the root folderId
+ * @param  {string} folderId The root folderId
+ * @param  {Object} driveReq drive request settings
+ * @return {Object[]}          List with folder objects
+ */
 module.exports.getListOfFolders = function(folderId, driveReq) {
 
   return new Promise((resolve, reject) => {
-
-
-
 
   // TODO Check that params are valid and present
 
@@ -96,6 +99,35 @@ module.exports.getListOfFolders = function(folderId, driveReq) {
 
   })
 };
+
+// let testImage = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
+// driveReq.url = "https://www.googleapis.com/drive/v3/files/" + testImage + "?alt=media"
+// driveReq.encoding = null;
+//   request.get( driveReq, (err, res, body) => {
+//     // console.log(res);
+//     console.log('-----------------------------------------------------');
+//     // console.log(body);
+//     if (res.headers['content-type'] == 'image/jpeg') {
+//       const streamImage = fs.WriteStream('file.jpg');
+//       streamImage.write(body);
+//       streamImage.end(() => {console.log('The stream is over and data has been saved');})
+//
+//     }
+//     // console.log(res.statusCode) // 200
+//     console.log(res.headers['content-type'])
+//     if (res.headers['content-type'] == 'application/json; charset=UTF-8') {
+//       var fileBuffer = new Buffer(res.body, 'binary' );
+//        var file2 = fileBuffer.toString('utf8');
+//        console.log(file2);
+//     }
+//     // console.log(res.headers.size);
+//
+//     console.log('Done!');
+//     // const buffer = Buffer.from(res.body, 'utf8');
+//     //     fs.writeFileSync('', buffer);
+//   })
+
+
 
 /**
  * @depricated
