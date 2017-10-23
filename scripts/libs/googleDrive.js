@@ -100,6 +100,48 @@ module.exports.getListOfFolders = function(folderId, driveReq) {
   })
 };
 
+
+/**
+ * Get a list of all folders nested in the root folderId
+ * @param  {string} folderId The root folderId
+ * @param  {Object} driveReq drive request settings
+ * @return {Object[]}          List with folder objects
+ */
+module.exports.getListOfFilesWithParents = function(folderId, driveReq) {
+
+  return new Promise((resolve, reject) => {
+
+    let parentString = "?q="+"mimeType = 'application/vnd.google-apps.folder'";
+    driveReq.url = "https://www.googleapis.com/drive/v3/files?fields=kind%2CnextPageToken%2CincompleteSearch%2Cfiles%2Fparents%2Cfiles%2Fid%2Cfiles%2FmimeType%2Cfiles%2Fname"
+    driveReq.encoding = undefined;
+    request( driveReq, (err, res, body) => {
+      if (err){ console.error(err); }
+
+      let files = []
+
+      // Parse response
+      const parsedBody = JSON.parse(body);
+      // console.log(parsedBody);
+
+      if (parsedBody.files) {
+        parsedBody.files.forEach((file) => {
+          // Interesting mime types: image/jpeg, application/vnd.google-apps.folder
+          if (file.mimeType != 'application/vnd.google-apps.folder') {
+            files.push(file);
+          }
+        });
+      }
+      // console.log(files);
+      // console.log('----------------------------------------');
+      // console.log(parsedBody.files);
+      // console.log('----------------------------------------');
+      resolve([files, parsedBody.files]);
+    })
+
+
+  })
+};
+
 // let testImage = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
 // driveReq.url = "https://www.googleapis.com/drive/v3/files/" + testImage + "?alt=media"
 // driveReq.encoding = null;

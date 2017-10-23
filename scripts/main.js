@@ -73,7 +73,39 @@ const _peekFolder = ((folderId, driveReq, level) => {
   })
 })
 
+// getListOfFilesWithParents
+const retriveFolderStructure = ((folderId, driveReq) => {
+  return new Promise ((resolve,reject) => {
+    gDrive.getListOfFilesWithParents(folderId, driveReq).then((searchedFolders) => {
+      let files         =  searchedFolders[0],
+          allFolders    =  searchedFolders[1]
+      let fullPathAll   = []
+      files.forEach((file) => {
+        // console.log(folder);
+        // TODO filepathe might need stat .png/.jpg
+        let filePath = [file.name]
+        if (undefined != file['parents']) {
+          let _folder = allFolders.find((i) => { return i.id == file.parents[0]})
+          // console.log(_folder);
+          while (_folder) {
+            if ( _folder.id == folderId) {
+              break;
+            }
+            filePath.push(_folder.name)
+            // console.log(filePath);
 
+            _folder = allFolders.find((i) => {return i.id == _folder.parents[0]})
+          }
+          fullPathAll.push(filePath.reverse().join('/'));
+        } else {
+          fullPathAll.push(filePath[0]);
+        }
+
+      })
+      resolve(fullPathAll)
+    })
+  })
+})
 // first ask for meta on everything espesially folders, then recursivly search for
 // files and folders until searched folders is the same as how many folders are in the damn drive
 
@@ -105,7 +137,7 @@ let getListFromFileSystem = new Promise ((resolve,reject) => {
 })
 
 // Wait until google request and local file check is compleate
-Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).then(filenames => {
+Promise.all([getListFromFileSystem, retriveFolderStructure(rootFolderId, driveReq)]).then(filenames => {
   let serverFiles  = filenames[0]
   let googleFiles  = filenames[1]
 
@@ -159,17 +191,7 @@ Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).th
     // -H 'Authorization: Bearer [YOUR_BEARER_TOKEN]' \
     // -H 'Accept: application/json' \
     // --compressed
-    //
-    // const rootFolderId
-    // For in retrived list
-    //  if mime is png/jpg
-    //    let fullPathForFile = [name of file with file extension]
-    //    while folder != rootFolderId
-    //      fullPathForFile.concat(parants[0])
-    //      folder = parants[0]
-    //    fullPathList.push(fullPathForFile.reverse().join('/'))
-    //
-    //
+
 
     // for fileWithPath of length >= 2
     // check if path exists if NOT
@@ -183,20 +205,21 @@ Promise.all([getListFromFileSystem, _peekFolder(rootFolderId, driveReq, '')]).th
 }).catch(function (reason) {ø
      console.log("Promise Rejected");
      console.log(reason);
-});;
+});
 
 
 
 
 const request = require('google-oauth-jwt').requestWithJWT();
 
-const downloadImage = ((imageId, driveReq) => {
-  let imageId = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
+const downloadImage = ((imageId, driveReq, pathToImage) => {
+  // let imageId = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
   driveReq.url = "https://www.googleapis.com/drive/v3/files/" + imageId + "?alt=media"
+  driveReq.encoding = null;
   request.get( driveReq, (err, res, body) => {
     console.log('-----------------------------------------------------');
     if (res.headers['content-type'] == 'image/jpeg') {
-      const streamImage = fs.WriteStream('file.jpg');
+      const streamImage = fs.WriteStream('./media/'+pathToImage);
       streamImage.write(body);
       streamImage.end(() => {console.log('The stream is over and data has been saved');})
     }
@@ -208,6 +231,7 @@ const downloadImage = ((imageId, driveReq) => {
     }
   })
 })
+downloadImage('0Bzd-8gMv1MGAdVJhWEVfaTZJTUk', driveReq, 'spansk/Spansk_04.11.11');
   // request.get(driveReq, function (err, res, body) {
   //
   // });
