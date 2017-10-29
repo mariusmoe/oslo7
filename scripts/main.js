@@ -100,9 +100,8 @@ const retriveFolderStructure = ((folderId, driveReq) => {
         } else {
           fullPathAll.push(filePath[0]);
         }
-
       })
-      resolve(fullPathAll)
+      resolve([fullPathAll, files])
     })
   })
 })
@@ -138,8 +137,10 @@ let getListFromFileSystem = new Promise ((resolve,reject) => {
 
 // Wait until google request and local file check is compleate
 Promise.all([getListFromFileSystem, retriveFolderStructure(rootFolderId, driveReq)]).then(filenames => {
-  let serverFiles  = filenames[0]
-  let googleFiles  = filenames[1]
+  let serverFiles     = filenames[0]
+  let googleFiles     = filenames[1][0]
+  let googleFilesIDs  = filenames[1][1]
+
 
   let new_serverFiles = serverFiles.map(function(e) {
     // substring from 7 because ./media should be removed
@@ -158,9 +159,15 @@ Promise.all([getListFromFileSystem, retriveFolderStructure(rootFolderId, driveRe
   console.log('Files on the server that are not on google drive:');
   console.log(new_serverFiles.difference(googleFiles));
 
+  let filepathWithNameToId = []
+  googleFiles.forEach((file, i) => {
+    filepathWithNameToId.push({id: googleFilesIDs[i].id, pathName: file})
+  })
+  console.log(filepathWithNameToId);
+
   const filesOnDriveNotOnLocalServer = googleFiles.difference(new_serverFiles)
 
-  filesOnDriveNotOnLocalServer.forEach((fileWithPath) => {
+  filesOnDriveNotOnLocalServer.forEach((fileWithPath, i) => {
     // TODO prevent this for loop to go too fast, see drive api for quotas
     const fileWithPathList = fileWithPath.split('/');
     // the slice has not yet happend so this fires too often
@@ -175,7 +182,11 @@ Promise.all([getListFromFileSystem, retriveFolderStructure(rootFolderId, driveRe
           console.log('ERROR')
         }
         console.log('pow!')
+        let fileToDownloadObject = filepathWithNameToId.find((i) => {return i.pathName == fileWithPath});
         // Call download file
+        // imageId, driveReq, pathToImage
+        // TODO thios does not work!!!
+        downloadImage(fileToDownloadObject.id ,driveReq, createFoldersString + fileWithPathList[fileWithPathList.length - 1]);
       });
 
     } else {
@@ -213,6 +224,7 @@ Promise.all([getListFromFileSystem, retriveFolderStructure(rootFolderId, driveRe
 const request = require('google-oauth-jwt').requestWithJWT();
 
 const downloadImage = ((imageId, driveReq, pathToImage) => {
+  return new Promise ((resolve,reject) => {
   // let imageId = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
   driveReq.url = "https://www.googleapis.com/drive/v3/files/" + imageId + "?alt=media"
   driveReq.encoding = null;
@@ -221,17 +233,22 @@ const downloadImage = ((imageId, driveReq, pathToImage) => {
     if (res.headers['content-type'] == 'image/jpeg') {
       const streamImage = fs.WriteStream('./media/'+pathToImage);
       streamImage.write(body);
-      streamImage.end(() => {console.log('The stream is over and data has been saved');})
+      streamImage.end(() => {
+        console.log('The stream is over and data has been saved');
+      resolve()
+    })
     }
     if (res.headers['content-type'] == 'application/json; charset=UTF-8') {
       console.log(res.headers['content-type'])
       const fileBuffer = new Buffer(res.body, 'binary' );
       const file2 = fileBuffer.toString('utf8');
       console.log(file2);
+      resolve()
     }
   })
 })
-downloadImage('0Bzd-8gMv1MGAdVJhWEVfaTZJTUk', driveReq, 'spansk/Spansk_04.11.11');
+})
+// downloadImage('0Bzd-8gMv1MGAdVJhWEVfaTZJTUk', driveReq, 'spansk/Spansk_04.11.11');
   // request.get(driveReq, function (err, res, body) {
   //
   // });
