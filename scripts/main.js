@@ -186,7 +186,8 @@ Promise.all([getListFromFileSystem, retriveFolderStructure(rootFolderId, driveRe
         // Call download file
         // imageId, driveReq, pathToImage
         // TODO thios does not work!!!
-        downloadImage(fileToDownloadObject.id ,driveReq, createFoldersString + fileWithPathList[fileWithPathList.length - 1]);
+
+        downloadImage(fileToDownloadObject.id ,driveReq, createFoldersString + '/' +fileWithPathList[fileWithPathList.length - 1]);
       });
 
     } else {
@@ -230,12 +231,15 @@ const downloadImage = ((imageId, driveReq, pathToImage) => {
   driveReq.encoding = null;
   request.get( driveReq, (err, res, body) => {
     console.log('-----------------------------------------------------');
-    if (res.headers['content-type'] == 'image/jpeg') {
-      const streamImage = fs.WriteStream('./media/'+pathToImage);
+    console.log(res.headers['content-type']);
+    console.log(body);
+    console.log(pathToImage);
+    if (res.headers['content-type'] == 'image/jpeg' || res.headers['content-type'] == 'image/png') {
+      const streamImage = fs.WriteStream(pathToImage);
       streamImage.write(body);
       streamImage.end(() => {
         console.log('The stream is over and data has been saved');
-      resolve()
+        resolve()
     })
     }
     if (res.headers['content-type'] == 'application/json; charset=UTF-8') {
@@ -248,7 +252,7 @@ const downloadImage = ((imageId, driveReq, pathToImage) => {
   })
 })
 })
-// downloadImage('0Bzd-8gMv1MGAdVJhWEVfaTZJTUk', driveReq, 'spansk/Spansk_04.11.11');
+// downloadImage('0Bzd-8gMv1MGAMkFULV96OG1Uc3M', driveReq, 'myfile.jpg');
   // request.get(driveReq, function (err, res, body) {
   //
   // });
