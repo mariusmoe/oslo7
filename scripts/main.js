@@ -143,11 +143,12 @@ Promise.all([getListFromFileSystem, retriveFolderStructure(rootFolderId, driveRe
 
 
   let new_serverFiles = serverFiles.map(function(e) {
-    // substring from 7 because ./media should be removed
-    e = e.replace('//', '/').substring(7);
+    // substring from 7 because ./media/ should be removed
+    e = e.replace('//', '/').substring(8);
     return e;
   });
 
+  console.log(new_serverFiles);
   console.log('-------------------------------------------------------------');
   console.log('All files on google Drive:');
   console.log(googleFiles);
