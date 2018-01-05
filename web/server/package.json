@@ -1,0 +1,49 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Backend for oslo7",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=dev nodemon index.js",
+    "nomon": "cross-env NODE_ENV=dev node index.js",
+    "buildtest": "cross-env NODE_ENV=test mocha --timeout 10000",
+    "nodev": "cross-env NODE_ENV=test node ./index.js",
+    "test": "cross-env NODE_ENV=test mocha --timeout 10000",
+    "test2": "cross-env NODE_ENV=test ./node_modules/.bin/mocha --reporter spec"
+  },
+  "keywords": [
+    "server"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.16.0",
+    "config": "^1.25.1",
+    "consign": "^0.1.2",
+    "cross-env": "^3.1.4",
+    "crypto": "0.0.3",
+    "express": "^4.14.1",
+    "fb": "^2.0.0",
+    "google-oauth-jwt": "^0.2.0",
+    "helmet": "^3.4.0",
+    "https": "^1.0.0",
+    "jsonfile": "^2.4.0",
+    "jsonschema": "^1.1.1",
+    "jsonwebtoken": "^7.2.1",
+    "method-override": "^2.3.7",
+    "moment": "^2.17.1",
+    "mongoose": "^4.8.1",
+    "morgan": "^1.7.0",
+    "node-cache": "^4.1.1",
+    "path": "^0.12.7",
+    "request": "^2.79.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
+    "cross-env": "^3.2.4",
+    "mocha": "^3.2.0",
+    "sinon": "^2.3.8"
+  }
+}

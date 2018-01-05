@@ -12,4 +12,6 @@ export class GalleryComponent implements OnInit {
   ngOnInit() {
   }
 
+  // https://github.com/tjoskar/ng-lazyload-image
+
 }

@@ -2,6 +2,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatButtonModule} from '@angular/material';
+import { LazyLoadImageModule } from 'ng-lazyload-image';
+import { HttpModule } from '@angular/http';
+import {MatCardModule} from '@angular/material/card';
+
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home/home.component';
@@ -12,6 +16,8 @@ import { JoinComponent } from './join/join/join.component';
 import { RoutingModule } from './routing/routing.module';
 import { NavigationComponent } from './navigation/navigation.component';
 import { FooterComponent } from './footer/footer.component';
+
+import { OsloService } from './_services/oslo.service';
 
 
 @NgModule({
@@ -28,9 +34,14 @@ import { FooterComponent } from './footer/footer.component';
     BrowserModule,
     BrowserAnimationsModule,
     RoutingModule,
-    MatButtonModule
+    MatButtonModule,
+    MatCardModule,
+    LazyLoadImageModule,
+    HttpModule
   ],
-  providers: [],
+  providers: [
+    OsloService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,3 +1,10 @@
 <p>
   home works!
 </p>
+
+<div>
+  <mat-card *ngFor="let post of feed; let i = index">
+    <mat-card-header>{{i}} </mat-card-header>
+    <mat-card-content>{{post.message}}</mat-card-content>
+  </mat-card>>
+</div>
