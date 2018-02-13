@@ -1,3 +1,9 @@
 <p>
   gallery works!
 </p>
+
+<div>
+  <mat-card *ngFor="let photo of photos; let i = index">
+    <img src="https://s3.eu-west-2.amazonaws.com/oslo-images/{{photo.driveID}}" />
+  </mat-card>
+</div>

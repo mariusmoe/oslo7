@@ -3,7 +3,7 @@ import { OsloService } from '../../_services/oslo.service';
 import {MatCardModule} from '@angular/material/card';
 
 
-import { Feed } from '../../_models/feed'
+import { Feed } from '../../_models/feed';
 
 @Component({
   selector: 'app-home',

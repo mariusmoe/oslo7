@@ -139,6 +139,27 @@ module.exports.getListOfFilesWithParents = function(folderId, driveReq) {
   })
 };
 
+
+/**
+ * Get a list of all folders nested in the root folderId
+ * @param  {string} folderId The root folderId
+ * @param  {Object} driveReq drive request settings
+ * @return {Object[]}          List with folder objects
+ */
+module.exports.getListOfFiles = function(folderId, driveReq) {
+  return new Promise((resolve, reject) => {
+    driveReq.url = "https://www.googleapis.com/drive/v3/files?fields=kind%2CnextPageToken%2CincompleteSearch%2Cfiles%2Fparents%2Cfiles%2Fid%2Cfiles%2FmimeType%2Cfiles%2Fname"
+    driveReq.encoding = undefined;
+    request( driveReq, (err, res, body) => {
+      if (err){ console.error(err); }
+      // Parse response
+      const parsedBody = JSON.parse(body);
+      resolve(parsedBody.files);
+    })
+  })
+};
+
+
 // let testImage = '0Bzd-8gMv1MGAdVJhWEVfaTZJTUk'
 // driveReq.url = "https://www.googleapis.com/drive/v3/files/" + testImage + "?alt=media"
 // driveReq.encoding = null;
@@ -196,3 +217,36 @@ module.exports.getListOfFilesWithParents = function(folderId, driveReq) {
 //     return serverFiles;
 //   });
 // };
+//
+// // const retriveFolderStructure = ((folderId, driveReq) => {
+//   return new Promise ((resolve,reject) => {
+//     gDrive.getListOfFilesWithParents(folderId, driveReq).then((searchedFolders) => {
+//       let files         =  searchedFolders[0],
+//           allFolders    =  searchedFolders[1]
+//       let fullPathAll   = []
+//
+//       // files.forEach((file) => {
+//       //   // console.log(folder);
+//       //   // TODO filepathe might need stat .png/.jpg
+//       //   let filePath = [file.name]
+//       //   if (undefined != file['parents']) {
+//       //     let _folder = allFolders.find((i) => { return i.id == file.parents[0]})
+//       //     // console.log(_folder);
+//       //     while (_folder) {
+//       //       if ( _folder.id == folderId) {
+//       //         break;
+//       //       }
+//       //       filePath.push(_folder.name)
+//       //       // console.log(filePath);
+//       //
+//       //       _folder = allFolders.find((i) => {return i.id == _folder.parents[0]})
+//       //     }
+//       //     fullPathAll.push(filePath.reverse().join('/'));
+//       //   } else {
+//       //     fullPathAll.push(filePath[0]);
+//       //   }
+//       // })
+//       resolve(allFolders)
+//     })
+//   })
+// })

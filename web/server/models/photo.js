@@ -9,12 +9,19 @@ const mongoose = require('mongoose'),
 // IF THIS CHANGES, DO UPDATE libs/validation.js!!
 const PhotoSchema = new Schema({
   driveID: {
-    type: String,
-    required: true
+    type: String
   },
   bucketID: {
-    type: String,
-    required: true
+    type: String
+  },
+  name: {
+    type: String
+  },
+  mimeType: {
+    type: String
+  },
+  parents: {
+    type: String
   }
 });
 

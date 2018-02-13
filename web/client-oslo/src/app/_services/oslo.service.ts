@@ -12,6 +12,7 @@ import 'rxjs/add/observable/of';
 export class OsloService {
 
   private feedList: Feed[] = [];
+  private photos: String[] = [];
 
   constructor(
     private http: Http
@@ -38,6 +39,25 @@ export class OsloService {
           }
         },
         error => {
+          console.error(error.text());
+          return null;
+        }
+      );
+  }
+
+  getPhotos(): Observable<String[]> {
+    return this.http.get(environment.URL.photoList)
+      .map(
+        response => {
+          const jsonResponse = response.json();
+          if (jsonResponse) {
+            this.photos = new Array<String>();
+            this.photos = jsonResponse;
+            return this.photos;
+          } else {
+            return null;
+          }
+        }, error => {
           console.error(error.text());
           return null;
         }

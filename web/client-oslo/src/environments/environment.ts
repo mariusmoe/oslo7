@@ -7,6 +7,7 @@ export const environment = {
   production: false,
   URL: {
     base:        'http://localhost:2000',
-    feed:        'http://localhost:2000/api/feed'
+    feed:        'http://localhost:2000/api/feed',
+    photoList:    'http://localhost:2000/api/photos/list'
   }
 };

@@ -34,6 +34,8 @@ module.exports = (app) => {
   */
   photosRoutes.get('/', PhotoController.deltaFiles);
 
+  photosRoutes.get('/list', PhotoController.getPhotos);
+
 
   // retrive one survey as a json object
   // surveyRoutes.get('/:json/:surveyId', SurveyController.getSurveyAsJson);
