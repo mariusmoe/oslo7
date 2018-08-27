@@ -1,67 +1,34 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers, Response, RequestOptions } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
+
+
 import { environment } from '../../environments/environment';
+import { HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
 
 import { Feed } from '../_models/feed'
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/observable/of';
+import { Photo } from '../_models/photo'
+
+
 
 @Injectable()
 export class OsloService {
 
-  private feedList: Feed[] = [];
-  private photos: String[] = [];
-
   constructor(
-    private http: Http
+    private http: HttpClient
   ) { }
 
-  getFeed():  Observable<Feed[]> {
-    return this.http.get(environment.URL.feed)
-      .map(
-        response => {
-          const jsonResponse = response.json();
-          if (jsonResponse) {
-            this.feedList = new Array<Feed>();
-            for (const post of jsonResponse){
-              const us = {
-                message: post.message,
-                created_time: post.created_time,
-                id: post.id,
-              };
-              this.feedList.push(us);
-            }
-            return this.feedList;
-          } else {
-            return null;
-          }
-        },
-        error => {
-          console.error(error.text());
-          return null;
-        }
-      );
+  getFeed() {
+    console.log('feed called');
+    
+    return this.http.get<Feed[]>(environment.URL.feed);
   }
 
-  getPhotos(): Observable<String[]> {
-    return this.http.get(environment.URL.photoList)
-      .map(
-        response => {
-          const jsonResponse = response.json();
-          if (jsonResponse) {
-            this.photos = new Array<String>();
-            this.photos = jsonResponse;
-            return this.photos;
-          } else {
-            return null;
-          }
-        }, error => {
-          console.error(error.text());
-          return null;
-        }
-      );
+  getPhotos() {
+    return this.http.get<String[]>(environment.URL.photoList);
   }
+
+  getFolders() {
+    return this.http.get<Photo[]>(environment.URL.foldersList)
+  }
+
 
 }

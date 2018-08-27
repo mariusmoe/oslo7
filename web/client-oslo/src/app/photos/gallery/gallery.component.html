@@ -1,9 +1,29 @@
-<p>
-  gallery works!
-</p>
-
 <div>
-  <mat-card *ngFor="let photo of photos; let i = index">
-    <img src="https://s3.eu-west-2.amazonaws.com/oslo-images/{{photo.driveID}}" />
-  </mat-card>
+  <p>
+    gallery works!
+
+  </p>
+
+  <ol class="breadcrumb">
+    <li *ngFor="let breadcrumb of breadcrumbs$ | async"
+        class="breadcrumb-item">
+      <a [routerLink]="[breadcrumb.url, breadcrumb.params]">
+        {{ breadcrumb.label }}
+      </a>
+    </li>
+  </ol>
+
+
+  <div>
+    <button mat-button (click)="popFolderStack()">Back!</button>
+    <mat-card 
+      *ngFor="let folder of folders; let i = index"
+      (click)="openFolder(folder.driveID)">
+      <p>{{folder.driveID}}</p>
+    </mat-card>
+    <hr>
+    <!-- <img src="https://s3.eu-west-2.amazonaws.com/oslo-images/{{photo.driveID}}" /> -->
+    <!-- https://material.angular.io/components/tree/examples -->
+    
+  </div>
 </div>

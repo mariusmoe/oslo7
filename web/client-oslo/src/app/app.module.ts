@@ -3,7 +3,8 @@ import { NgModule } from '@angular/core';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatButtonModule} from '@angular/material';
 import { LazyLoadImageModule } from 'ng-lazyload-image';
-import { HttpModule } from '@angular/http';
+
+import { HttpClientModule } from '@angular/common/http';
 import {MatCardModule} from '@angular/material/card';
 
 
@@ -37,7 +38,7 @@ import { OsloService } from './_services/oslo.service';
     MatButtonModule,
     MatCardModule,
     LazyLoadImageModule,
-    HttpModule
+    HttpClientModule,
   ],
   providers: [
     OsloService

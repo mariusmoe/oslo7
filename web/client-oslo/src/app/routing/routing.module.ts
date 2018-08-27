@@ -9,15 +9,15 @@ import { Routes, RouterModule } from '@angular/router';
 
 
 const routes: Routes = [
-  { path: 'photos', component: GalleryComponent },
-  { path: 'about', component: AboutComponent },
-  { path: 'join', component: JoinComponent },
-  { path: '', component: HomeComponent },
-  { path: '**', redirectTo: '', pathMatch: 'full' },
+  { path: 'photos', component: GalleryComponent, children: [ {path: '**', component: GalleryComponent}] },
+  { path: 'about', component: AboutComponent, pathMatch: 'full' },
+  { path: 'join', component: JoinComponent, pathMatch: 'full' },
+  { path: '', component: HomeComponent, pathMatch: 'full' },
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({
-  imports: [ RouterModule.forRoot(routes) ],
+  imports: [ RouterModule.forRoot(routes ) ],
   exports: [ RouterModule ]
 })
 export class RoutingModule { }

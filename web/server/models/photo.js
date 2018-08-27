@@ -7,22 +7,12 @@ const mongoose = require('mongoose'),
 */
 
 // IF THIS CHANGES, DO UPDATE libs/validation.js!!
-const PhotoSchema = new Schema({
-  driveID: {
-    type: String
-  },
-  bucketID: {
-    type: String
-  },
-  name: {
-    type: String
-  },
-  mimeType: {
-    type: String
-  },
-  parents: {
-    type: String
-  }
+const photoSchema = new Schema({
+  driveID: String,
+  bucketID: String,
+  name: String,
+  mimeType: String,
+  parents: String
 });
 
-module.exports = mongoose.model('Photo', PhotoSchema);
+module.exports = mongoose.model('Photo', photoSchema);

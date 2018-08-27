@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "es6-promise-pool": "^2.5.0",
     "google-oauth-jwt": "^0.2.0",
     "mkdirp": "^0.5.1",
     "walk": "^2.3.9"

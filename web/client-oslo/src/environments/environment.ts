@@ -8,6 +8,7 @@ export const environment = {
   URL: {
     base:        'http://localhost:2000',
     feed:        'http://localhost:2000/api/feed',
-    photoList:    'http://localhost:2000/api/photos/list'
+    photoList:    'http://localhost:2000/api/photos/list',
+    foldersList:    'http://localhost:2000/api/photos/folders'
   }
 };

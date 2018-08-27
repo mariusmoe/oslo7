@@ -13,15 +13,20 @@ import { Feed } from '../../_models/feed';
 export class HomeComponent implements OnInit {
 
   public feed: Feed[];
+  public error;
 
   constructor(
     public osloService: OsloService
   ) {
-    const sub = osloService.getFeed().subscribe((feed) => {
-      this.feed = feed;
-      console.log(this.feed);
-      sub.unsubscribe();
-    });
+    this.osloService.getFeed()
+      .subscribe(
+        (data: Feed[]) => {
+          console.log(data);
+          
+          this.feed = { ...data }
+        }, // success path
+        error => this.error = error // error path
+      );
   }
 
   ngOnInit() {

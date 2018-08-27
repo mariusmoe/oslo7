@@ -15,6 +15,7 @@ AWS.config.accessKeyId = config.aws_key;
 AWS.config.secretAccessKey = config.aws_secret_key;
 
 var s3 = new AWS.S3();
+const MAX_CONCURRENT_AWS_UPLOADS = 3;
 
 const rootFolderId  = '0Bzd-8gMv1MGANlhiQ2c1RmZkVXM';   // Root folder to begin search
 const secretKeyPem  = path.normalize('./config/your-key-file.pem');  // Access codes for creating tokens
@@ -54,6 +55,7 @@ const retriveMongoFiles = (() => {
 /*
 TODO: OR not handeled
 * New location for file - DONE
+* Already in db - DONE
 * Delete file
  */
 
@@ -86,34 +88,25 @@ Promise.all([retriveMongoFiles(), gDrive.getListOfFiles(rootFolderId, driveReq)]
             }
           })
     } else {
-      // add to download queue
-      filesOnDriveNotOnLocalServerObjects.push(object);
+      if (foundEntry != null){
+        console.log('Already in db!');
+        
+      } else {
+        // add to download queue
+        filesOnDriveNotOnLocalServerObjects.push(object);
+      }
     }
   });
   /*
     ---- END -> Find delta files ----
    */
 
-   // Correct parants for misplaced children
-  // async.forEachLimit(folderChanged, 5, (object, callback) => {
-  //   photos.findOneAndUpdate({driveID: object.id}, {parents: object.parents[0]},
-  //                          (err, changedLocalObject) => {
-  //     if (err) {
-  //       console.log(err);
-  //     }
-  //     console.log(changedLocalObject);
-  //   })
-  // })
-
-  /*
-  ***** START -> Go through every file not on local server ****
-  */
-  // Use the following for performance increase!
-  // async.forEachLimit(filesOnDriveNotOnLocalServerObjects, 5, (object, callback) => {
-  /*
-   Under here is async adasdsadasd
+  /**
+   *   ***** START -> Go through every file not on local server ****
+   Under here is async image download
    */
-  async.forEachSeries(filesOnDriveNotOnLocalServerObjects, (object, callback) => {
+  //async.forEachSeries(filesOnDriveNotOnLocalServerObjects, (object, callback) => {
+  async.forEachLimit(filesOnDriveNotOnLocalServerObjects, MAX_CONCURRENT_AWS_UPLOADS, (object, callback) => {
   //filesOnDriveNotOnLocalServerObjects.forEach((object) => {
     const googleFile = new Photo({
       driveID: object.id,
@@ -121,7 +114,7 @@ Promise.all([retriveMongoFiles(), gDrive.getListOfFiles(rootFolderId, driveReq)]
       mimeType: object.mimeType,
       parents: object.parents ? object.parents[0] : '' //parents
     });
-    googleFile.save((err, savedObject) => {
+    googleFile.save((err) => {
       if (err) {
         console.log('ERROR during storing in DB');
         return next(err)
@@ -178,7 +171,7 @@ Promise.all([retriveMongoFiles(), gDrive.getListOfFiles(rootFolderId, driveReq)]
        console.log(reason);
   });
 
-}   // END of giant delt files operation
+}   // END of giant delta files operation
 
 // GET
 exports.getPhotos = (req, res, next) => {
@@ -188,4 +181,67 @@ exports.getPhotos = (req, res, next) => {
     }
     return res.status(200).send(photos);
   });
+}
+
+// GET
+exports.getFolders = (req, res, next) => {
+  console.log('looking up folders...');
+  
+  Photo.find({ mimeType: 'application/vnd.google-apps.folder'}, (err, folders) => {
+    if (err) {
+      console.log('could not find', err)
+      return res.status(500).send(err);
+      
+    }
+    console.log('Found stuff: ')
+    console.log(folders)
+    return res.status(200).send(folders);
+  }).catch((e) => {
+    console.log('could not find')
+});
+}
+
+// GET
+exports.getPhotosForFolder = (req, res, next) => {
+  const folder = req.params.id
+  Photo.find({parents: folder}, (err, photos) => {
+    if (err) {
+      return next(err);
+    }
+    return res.status(200).send(photos);
+  });
+}
+
+
+// DELETE
+// does not work yet!
+exports.deletePhoto = (req, res, next) => {
+  const photosToDelete = req.body.toDelete
+  Photo.find({}, (err, photos) => {
+    if (err) {
+      return next(err);
+    }
+    return res.status(200).send(photos);
+  });
+  var params = {
+    Bucket: 'STRING_VALUE', /* required */
+    Delete: { /* required */
+      Objects: [ /* required */
+        {
+          Key: 'STRING_VALUE', /* required */
+          VersionId: 'STRING_VALUE'
+        },
+        /* more items */
+      ],
+      Quiet: true || false
+    },
+    MFA: 'STRING_VALUE',
+    RequestPayer: requester
+  };
+  s3.deleteObjects(params, function (err, data) {
+    if (err) console.log(err, err.stack); // an error occurred
+    else console.log(data);           // successful response
+  });
+
+
 }
