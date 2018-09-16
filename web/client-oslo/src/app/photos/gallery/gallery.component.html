@@ -4,14 +4,15 @@
 
   </p>
 
-  <ol class="breadcrumb">
-    <li *ngFor="let breadcrumb of breadcrumbs$ | async"
-        class="breadcrumb-item">
-      <a [routerLink]="[breadcrumb.url, breadcrumb.params]">
-        {{ breadcrumb.label }}
-      </a>
+  <ul class="breadcrumb">
+    <li *ngFor="let driveID of folderStack"
+        class="breadcrumb"
+        (click)="goToFolder(driveID)">
+       
+        {{ driveID }}
+      
     </li>
-  </ol>
+  </ul>
 
 
   <div>

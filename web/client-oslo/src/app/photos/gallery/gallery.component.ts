@@ -19,9 +19,7 @@ export class GalleryComponent implements OnInit {
   public allFolders: Photo[];                             // All folders retrived from server at load
   public rootFolderId = '0Bzd-8gMv1MGANlhiQ2c1RmZkVXM';   // Root folder to begin search
 
-  folderStack$: Observable<String>;
   folderStack = [];   
-  folderStack_                                    // Stack of where we are in the folder nesting
 
   images: Observable<Photo[]>;                            // TO be... list of image objects, retrived from db
 
@@ -55,12 +53,6 @@ export class GalleryComponent implements OnInit {
    }
 
    ngOnInit() {
-   
-
-    
-
-
-
   }
 
   openFolder(folderToOpenDriveID=null) {
@@ -80,10 +72,13 @@ export class GalleryComponent implements OnInit {
       this.folderStack.pop();    
       this.openFolder();
     }
-
   }
 
-
+  goToFolder(driveId) {
+    let indexOfFolderToGoTo = this.folderStack.indexOf(driveId);
+    this.folderStack.splice(indexOfFolderToGoTo+1);
+    this.openFolder();
+  }
   // https://github.com/tjoskar/ng-lazyload-image
 
 }
